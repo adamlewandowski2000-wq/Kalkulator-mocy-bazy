@@ -10,9 +10,10 @@ function OptionGrid({ label, options, value, onChange, unit }) {
       <div
         style={{
           display: "flex",
-          gap: 8,
+          gap: 6,          // mniejszy odstęp
           marginTop: 6,
-          flexWrap: "wrap",
+          flexWrap: "nowrap", // wszystkie w jednym rzędzie
+          overflowX: "auto",  // jeśli się nie mieści, można przewinąć poziomo
         }}
       >
         {options.map((opt) => {
@@ -24,7 +25,7 @@ function OptionGrid({ label, options, value, onChange, unit }) {
               onClick={() => onChange(opt)}
               style={{
                 cursor: "pointer",
-                width: 50,
+                minWidth: 50,
                 height: 38,
                 borderRadius: 6,
                 border: active ? "2px solid #16a34a" : "2px solid #ccc",
@@ -35,6 +36,7 @@ function OptionGrid({ label, options, value, onChange, unit }) {
                 fontSize: 13,
                 position: "relative",
                 background: active ? "#dcfce7" : "#fff",
+                flexShrink: 0, // nie kurczy się
               }}
             >
               {opt} {unit}

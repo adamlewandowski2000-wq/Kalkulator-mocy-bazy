@@ -5,9 +5,16 @@ const VOLUMES = [10, 30, 60, 120];
 
 function OptionGrid({ label, options, value, onChange, unit }) {
   return (
-    <div style={{ marginBottom: 18 }}>
-      <strong>{label}</strong>
-      <div style={{ display: "flex", gap: 10, marginTop: 6, flexWrap: "wrap" }}>
+    <div style={{ marginBottom: 16 }}>
+      <strong style={{ fontSize: 14 }}>{label}</strong>
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          marginTop: 6,
+          flexWrap: "wrap",
+        }}
+      >
         {options.map((opt) => {
           const active = value === opt;
 
@@ -17,14 +24,15 @@ function OptionGrid({ label, options, value, onChange, unit }) {
               onClick={() => onChange(opt)}
               style={{
                 cursor: "pointer",
-                width: 64,
-                height: 46,
-                borderRadius: 8,
+                width: 50,
+                height: 38,
+                borderRadius: 6,
                 border: active ? "2px solid #16a34a" : "2px solid #ccc",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontWeight: "bold",
+                fontSize: 13,
                 position: "relative",
                 background: active ? "#dcfce7" : "#fff",
               }}
@@ -35,13 +43,13 @@ function OptionGrid({ label, options, value, onChange, unit }) {
                 <span
                   style={{
                     position: "absolute",
-                    top: -6,
-                    right: -6,
+                    top: -5,
+                    right: -5,
                     background: "#16a34a",
                     color: "white",
                     borderRadius: "50%",
-                    width: 18,
-                    height: 18,
+                    width: 16,
+                    height: 16,
                     fontSize: 12,
                     display: "flex",
                     alignItems: "center",
@@ -101,9 +109,7 @@ export default function Mixer() {
     const aromaMl = volume * (AROMA_PERCENT / 100);
     const baseVolume = volume - aromaMl;
 
-    const mlA =
-      (baseVolume * (target - baseB)) / (baseA - baseB);
-
+    const mlA = (baseVolume * (target - baseB)) / (baseA - baseB);
     const mlB = baseVolume - mlA;
 
     return {
@@ -114,8 +120,17 @@ export default function Mixer() {
   }, [baseA, baseB, target, volume, validationError]);
 
   return (
-    <div style={{ maxWidth: 500, margin: "40px auto", fontFamily: "Arial" }}>
-      <h2>Kalkulator mieszania baz (10% aromatu)</h2>
+    <div
+      style={{
+        maxWidth: 360,
+        margin: "20px auto",
+        fontFamily: "Arial",
+        padding: "0 10px",
+      }}
+    >
+      <h2 style={{ fontSize: 18, marginBottom: 16 }}>
+        Kalkulator mieszania baz (10% aromatu)
+      </h2>
 
       <OptionGrid
         label="Moc bazy A"
@@ -150,27 +165,24 @@ export default function Mixer() {
       />
 
       {validationError && (
-        <p style={{ color: "red" }}>⚠️ {validationError}</p>
+        <p style={{ color: "red", fontSize: 13 }}>⚠️ {validationError}</p>
       )}
 
       {result && (
         <>
-          <hr />
-          <h3>Wynik:</h3>
+          <hr style={{ margin: "16px 0" }} />
+          <h3 style={{ fontSize: 16 }}>Wynik:</h3>
 
-          <p>
-            Aromat (10%):{" "}
-            <strong>{result.aroma} ml</strong>
+          <p style={{ fontSize: 14 }}>
+            Aromat (10%): <strong>{result.aroma} ml</strong>
           </p>
 
-          <p>
-            Baza A:{" "}
-            <strong>{result.mlA} ml</strong>
+          <p style={{ fontSize: 14 }}>
+            Baza A: <strong>{result.mlA} ml</strong>
           </p>
 
-          <p>
-            Baza B:{" "}
-            <strong>{result.mlB} ml</strong>
+          <p style={{ fontSize: 14 }}>
+            Baza B: <strong>{result.mlB} ml</strong>
           </p>
         </>
       )}

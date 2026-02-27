@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 
 const POWERS = [0, 6, 12, 18, 24, 36];
 const POWERS_B = [0, 6, 12, 18, 200];
@@ -41,7 +41,6 @@ function OptionGrid({ label, options, value, onChange, unit }) {
               }}
             >
               {opt} {unit}
-
               {active && (
                 <span
                   style={{
@@ -80,6 +79,7 @@ export default function Mixer() {
   const [isCustomVolume, setIsCustomVolume] = useState(false);
 
   const [withAroma, setWithAroma] = useState("10%");
+  const inputRef = useRef(null);
 
   const AROMA_PERCENT = 10;
 
@@ -175,7 +175,7 @@ export default function Mixer() {
         unit="mg"
       />
 
-      {/* Ilość końcowa + własna */}
+      {/* Ilość końcowa */}
       <div style={{ marginBottom: 16 }}>
         <strong style={{ fontSize: 14 }}>Ilość końcowa</strong>
         <div
@@ -220,11 +220,12 @@ export default function Mixer() {
             );
           })}
 
-          {/* Własne okienko */}
+          {/* Własna ilość */}
           <div
             onClick={() => {
               setIsCustomVolume(true);
               setVolume(null);
+              setTimeout(() => inputRef.current?.focus(), 100);
             }}
             style={{
               cursor: "pointer",
@@ -238,7 +239,6 @@ export default function Mixer() {
               alignItems: "center",
               justifyContent: "center",
               fontWeight: "bold",
-              fontSize: 13,
               background: isCustomVolume
                 ? "#dcfce7"
                 : "#fff",
@@ -248,7 +248,9 @@ export default function Mixer() {
           >
             {isCustomVolume ? (
               <input
+                ref={inputRef}
                 type="number"
+                inputMode="decimal"
                 value={customVolume}
                 onChange={(e) =>
                   setCustomVolume(e.target.value)
@@ -259,6 +261,9 @@ export default function Mixer() {
                   border: "none",
                   outline: "none",
                   fontWeight: "bold",
+                  fontSize: 16, // 🔥 brak zoom na iOS
+                  background: "transparent",
+                  textAlign: "center",
                 }}
               />
             ) : (
@@ -268,7 +273,6 @@ export default function Mixer() {
         </div>
       </div>
 
-      {/* Opcja aromatu jako kafelki */}
       <OptionGrid
         label="Aromat"
         options={["10%", "Bez"]}
@@ -290,8 +294,7 @@ export default function Mixer() {
 
           {withAroma === "10%" && (
             <p style={{ fontSize: 14 }}>
-              Aromat (10%):{" "}
-              <strong>{result.aroma} ml</strong>
+              Aromat (10%): <strong>{result.aroma} ml</strong>
             </p>
           )}
 

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 
 const POWERS = [0, 6, 12, 18, 24, 36];
-const POWERS_B = [0, 6, 12, 18, 200]; // zmieniona baza B
+const POWERS_B = [0, 6, 12, 18, 200];
 const VOLUMES = [10, 30, 60, 120];
 
 function OptionGrid({ label, options, value, onChange, unit }) {
@@ -74,13 +74,16 @@ export default function Mixer() {
   const [baseA, setBaseA] = useState(null);
   const [baseB, setBaseB] = useState(null);
   const [target, setTarget] = useState(null);
+
   const [volume, setVolume] = useState(null);
   const [customVolume, setCustomVolume] = useState("");
-  const [withAroma, setWithAroma] = useState(true);
+  const [isCustomVolume, setIsCustomVolume] = useState(false);
+
+  const [withAroma, setWithAroma] = useState("10%");
 
   const AROMA_PERCENT = 10;
 
-  const finalVolume = customVolume
+  const finalVolume = isCustomVolume
     ? parseFloat(customVolume)
     : volume;
 
@@ -115,9 +118,10 @@ export default function Mixer() {
     )
       return null;
 
-    const aromaMl = withAroma
-      ? finalVolume * (AROMA_PERCENT / 100)
-      : 0;
+    const aromaMl =
+      withAroma === "10%"
+        ? finalVolume * (AROMA_PERCENT / 100)
+        : 0;
 
     const baseVolume = finalVolume - aromaMl;
 
@@ -171,60 +175,107 @@ export default function Mixer() {
         unit="mg"
       />
 
-      <OptionGrid
-        label="Ilość końcowa"
-        options={VOLUMES}
-        value={volume}
-        onChange={(v) => {
-          setVolume(v);
-          setCustomVolume("");
-        }}
-        unit="ml"
-      />
-
-      {/* Nowe pole wpisywania ilości */}
+      {/* Ilość końcowa + własna */}
       <div style={{ marginBottom: 16 }}>
-        <strong style={{ fontSize: 14 }}>
-          Lub wpisz własną ilość (ml)
-        </strong>
-        <input
-          type="number"
-          value={customVolume}
-          onChange={(e) => setCustomVolume(e.target.value)}
-          placeholder="np. 75"
+        <strong style={{ fontSize: 14 }}>Ilość końcowa</strong>
+        <div
           style={{
-            width: "100%",
+            display: "flex",
+            gap: 6,
             marginTop: 6,
-            padding: 8,
-            borderRadius: 6,
-            border: "1px solid #ccc",
+            flexWrap: "nowrap",
+            overflowX: "auto",
           }}
-        />
-      </div>
+        >
+          {VOLUMES.map((opt) => {
+            const active = volume === opt && !isCustomVolume;
 
-      {/* Wybór aromatu */}
-      <div style={{ marginBottom: 16 }}>
-        <strong style={{ fontSize: 14 }}>Opcja aromatu</strong>
-        <div style={{ marginTop: 6 }}>
-          <label>
-            <input
-              type="radio"
-              checked={withAroma}
-              onChange={() => setWithAroma(true)}
-            />{" "}
-            Z 10% aromatu
-          </label>
-          <br />
-          <label>
-            <input
-              type="radio"
-              checked={!withAroma}
-              onChange={() => setWithAroma(false)}
-            />{" "}
-            Bez aromatu
-          </label>
+            return (
+              <div
+                key={opt}
+                onClick={() => {
+                  setVolume(opt);
+                  setIsCustomVolume(false);
+                  setCustomVolume("");
+                }}
+                style={{
+                  cursor: "pointer",
+                  minWidth: 50,
+                  height: 38,
+                  borderRadius: 6,
+                  border: active
+                    ? "2px solid #16a34a"
+                    : "2px solid #ccc",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: "bold",
+                  fontSize: 13,
+                  background: active ? "#dcfce7" : "#fff",
+                  flexShrink: 0,
+                }}
+              >
+                {opt} ml
+              </div>
+            );
+          })}
+
+          {/* Własne okienko */}
+          <div
+            onClick={() => {
+              setIsCustomVolume(true);
+              setVolume(null);
+            }}
+            style={{
+              cursor: "pointer",
+              minWidth: 70,
+              height: 38,
+              borderRadius: 6,
+              border: isCustomVolume
+                ? "2px solid #16a34a"
+                : "2px solid #ccc",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "bold",
+              fontSize: 13,
+              background: isCustomVolume
+                ? "#dcfce7"
+                : "#fff",
+              flexShrink: 0,
+              padding: "0 6px",
+            }}
+          >
+            {isCustomVolume ? (
+              <input
+                type="number"
+                value={customVolume}
+                onChange={(e) =>
+                  setCustomVolume(e.target.value)
+                }
+                placeholder="ml"
+                style={{
+                  width: 50,
+                  border: "none",
+                  outline: "none",
+                  fontWeight: "bold",
+                }}
+              />
+            ) : (
+              "Własna"
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Opcja aromatu jako kafelki */}
+      <OptionGrid
+        label="Aromat"
+        options={["10%", "Bez"]}
+        value={withAroma}
+        onChange={setWithAroma}
+        unit=""
+      />
 
       {validationError && (
         <p style={{ color: "red", fontSize: 13 }}>
@@ -237,9 +288,10 @@ export default function Mixer() {
           <hr style={{ margin: "16px 0" }} />
           <h3 style={{ fontSize: 16 }}>Wynik:</h3>
 
-          {withAroma && (
+          {withAroma === "10%" && (
             <p style={{ fontSize: 14 }}>
-              Aromat (10%): <strong>{result.aroma} ml</strong>
+              Aromat (10%):{" "}
+              <strong>{result.aroma} ml</strong>
             </p>
           )}
 

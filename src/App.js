@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 
 const POWERS = [0, 6, 12, 18, 24, 36];
+const POWERS_B = [0, 6, 12, 18, 200]; // zmieniona baza B
 const VOLUMES = [10, 30, 60, 120];
 
 function OptionGrid({ label, options, value, onChange, unit }) {
@@ -10,10 +11,10 @@ function OptionGrid({ label, options, value, onChange, unit }) {
       <div
         style={{
           display: "flex",
-          gap: 6,          // mniejszy odstęp
+          gap: 6,
           marginTop: 6,
-          flexWrap: "nowrap", // wszystkie w jednym rzędzie
-          overflowX: "auto",  // jeśli się nie mieści, można przewinąć poziomo
+          flexWrap: "nowrap",
+          overflowX: "auto",
         }}
       >
         {options.map((opt) => {
@@ -36,7 +37,7 @@ function OptionGrid({ label, options, value, onChange, unit }) {
                 fontSize: 13,
                 position: "relative",
                 background: active ? "#dcfce7" : "#fff",
-                flexShrink: 0, // nie kurczy się
+                flexShrink: 0,
               }}
             >
               {opt} {unit}
@@ -74,15 +75,21 @@ export default function Mixer() {
   const [baseB, setBaseB] = useState(null);
   const [target, setTarget] = useState(null);
   const [volume, setVolume] = useState(null);
+  const [customVolume, setCustomVolume] = useState("");
+  const [withAroma, setWithAroma] = useState(true);
 
   const AROMA_PERCENT = 10;
+
+  const finalVolume = customVolume
+    ? parseFloat(customVolume)
+    : volume;
 
   const validationError = useMemo(() => {
     if (
       baseA === null ||
       baseB === null ||
       target === null ||
-      volume === null
+      !finalVolume
     )
       return "";
 
@@ -96,22 +103,28 @@ export default function Mixer() {
     }
 
     return "";
-  }, [baseA, baseB, target, volume]);
+  }, [baseA, baseB, target, finalVolume]);
 
   const result = useMemo(() => {
     if (
       baseA === null ||
       baseB === null ||
       target === null ||
-      volume === null ||
+      !finalVolume ||
       validationError
     )
       return null;
 
-    const aromaMl = volume * (AROMA_PERCENT / 100);
-    const baseVolume = volume - aromaMl;
+    const aromaMl = withAroma
+      ? finalVolume * (AROMA_PERCENT / 100)
+      : 0;
 
-    const mlA = (baseVolume * (target - baseB)) / (baseA - baseB);
+    const baseVolume = finalVolume - aromaMl;
+
+    const mlA =
+      (baseVolume * (target - baseB)) /
+      (baseA - baseB);
+
     const mlB = baseVolume - mlA;
 
     return {
@@ -119,7 +132,7 @@ export default function Mixer() {
       mlA: mlA.toFixed(2),
       mlB: mlB.toFixed(2),
     };
-  }, [baseA, baseB, target, volume, validationError]);
+  }, [baseA, baseB, target, finalVolume, validationError, withAroma]);
 
   return (
     <div
@@ -131,7 +144,7 @@ export default function Mixer() {
       }}
     >
       <h2 style={{ fontSize: 18, marginBottom: 16 }}>
-        Kalkulator mieszania baz (10% aromatu)
+        Kalkulator mieszania baz
       </h2>
 
       <OptionGrid
@@ -144,7 +157,7 @@ export default function Mixer() {
 
       <OptionGrid
         label="Moc bazy B"
-        options={POWERS}
+        options={POWERS_B}
         value={baseB}
         onChange={setBaseB}
         unit="mg"
@@ -162,12 +175,61 @@ export default function Mixer() {
         label="Ilość końcowa"
         options={VOLUMES}
         value={volume}
-        onChange={setVolume}
+        onChange={(v) => {
+          setVolume(v);
+          setCustomVolume("");
+        }}
         unit="ml"
       />
 
+      {/* Nowe pole wpisywania ilości */}
+      <div style={{ marginBottom: 16 }}>
+        <strong style={{ fontSize: 14 }}>
+          Lub wpisz własną ilość (ml)
+        </strong>
+        <input
+          type="number"
+          value={customVolume}
+          onChange={(e) => setCustomVolume(e.target.value)}
+          placeholder="np. 75"
+          style={{
+            width: "100%",
+            marginTop: 6,
+            padding: 8,
+            borderRadius: 6,
+            border: "1px solid #ccc",
+          }}
+        />
+      </div>
+
+      {/* Wybór aromatu */}
+      <div style={{ marginBottom: 16 }}>
+        <strong style={{ fontSize: 14 }}>Opcja aromatu</strong>
+        <div style={{ marginTop: 6 }}>
+          <label>
+            <input
+              type="radio"
+              checked={withAroma}
+              onChange={() => setWithAroma(true)}
+            />{" "}
+            Z 10% aromatu
+          </label>
+          <br />
+          <label>
+            <input
+              type="radio"
+              checked={!withAroma}
+              onChange={() => setWithAroma(false)}
+            />{" "}
+            Bez aromatu
+          </label>
+        </div>
+      </div>
+
       {validationError && (
-        <p style={{ color: "red", fontSize: 13 }}>⚠️ {validationError}</p>
+        <p style={{ color: "red", fontSize: 13 }}>
+          ⚠️ {validationError}
+        </p>
       )}
 
       {result && (
@@ -175,9 +237,11 @@ export default function Mixer() {
           <hr style={{ margin: "16px 0" }} />
           <h3 style={{ fontSize: 16 }}>Wynik:</h3>
 
-          <p style={{ fontSize: 14 }}>
-            Aromat (10%): <strong>{result.aroma} ml</strong>
-          </p>
+          {withAroma && (
+            <p style={{ fontSize: 14 }}>
+              Aromat (10%): <strong>{result.aroma} ml</strong>
+            </p>
+          )}
 
           <p style={{ fontSize: 14 }}>
             Baza A: <strong>{result.mlA} ml</strong>

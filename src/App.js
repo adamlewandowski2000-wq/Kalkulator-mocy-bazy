@@ -95,12 +95,12 @@ function NicotineCalculator() {
     const nicotineBase = (t * v) / b;
 
 
-    // ile PG/VG ma być finalnie
+    // docelowe ilości PG/VG
     const pgTotal = v * (Number(targetPg) / 100);
     const vgTotal = v * (Number(targetVg) / 100);
 
 
-    // ile PG/VG wnosi baza nikotynowa
+    // PG/VG z bazy nikotynowej
     const pgFromBase =
       nicotineBase * (Number(basePg) / 100);
 
@@ -108,12 +108,12 @@ function NicotineCalculator() {
       nicotineBase * (Number(baseVg) / 100);
 
 
-    // ile trzeba dodać
+    // brakujące PG/VG
     const pg = pgTotal - pgFromBase;
     const vg = vgTotal - vgFromBase;
 
 
-    // gramatura bazy nikotynowej
+    // masa bazy nikotynowej
     const nicotineBaseG =
       (
         nicotineBase *
@@ -150,12 +150,24 @@ function NicotineCalculator() {
   ]);
 
 
+  const inputStyle = {
+    width: "100%",
+    height: 38,
+    marginBottom: 8,
+    fontSize: 16,
+    padding: "0 8px",
+    boxSizing: "border-box",
+    borderRadius: 6,
+    border: "1px solid #ccc"
+  };
+
+
   return (
     <div
       style={{
-        marginTop:30,
-        borderTop:"1px solid #ccc",
-        paddingTop:20
+        marginTop: 30,
+        borderTop: "1px solid #ccc",
+        paddingTop: 20
       }}
     >
 
@@ -179,17 +191,12 @@ function NicotineCalculator() {
 
         <input
           key={name}
+          type="number"
+          inputMode="decimal"
           placeholder={name}
           value={value}
           onChange={(e)=>setter(e.target.value)}
-          style={{
-            width:"100%",
-            height:38,
-            marginBottom:8,
-            fontSize:16,
-            padding:"0 8px",
-            boxSizing:"border-box"
-          }}
+          style={inputStyle}
         />
 
       ))}
@@ -242,6 +249,7 @@ function NicotineCalculator() {
 
           <hr />
 
+
           <p>
             Razem:
             <strong>
@@ -254,8 +262,9 @@ function NicotineCalculator() {
             </strong>
           </p>
 
+
           <p>
-            Waga składników:
+            Waga całości:
             <strong>
               {" "}
               {(
@@ -267,6 +276,7 @@ function NicotineCalculator() {
           </p>
 
         </>
+
       )}
 
     </div>

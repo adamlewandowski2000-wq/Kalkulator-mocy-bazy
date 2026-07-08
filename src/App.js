@@ -90,11 +90,16 @@ function NicotineCalculator() {
 
     if (!b || !t || !v) return null;
 
+    // ilość bazy nikotynowej
     const nicotineBase = (t * v) / b;
 
+
+    // wymagany całkowity PG/VG
     const pgTotal = v * (Number(targetPg) / 100);
     const vgTotal = v * (Number(targetVg) / 100);
 
+
+    // PG/VG wniesione przez bazę nikotynową
     const pgFromBase =
       nicotineBase * (Number(basePg) / 100);
 
@@ -102,10 +107,20 @@ function NicotineCalculator() {
       nicotineBase * (Number(baseVg) / 100);
 
 
+    // brakujące ilości
+    const pg = pgTotal - pgFromBase;
+    const vg = vgTotal - vgFromBase;
+
+
     return {
       nicotineBase,
-      pg: pgTotal - pgFromBase,
-      vg: vgTotal - vgFromBase,
+
+      pg,
+      vg,
+
+      // ml -> g
+      pgG: pg * 1.04,
+      vgG: vg * 1.26,
     };
 
   }, [
@@ -141,7 +156,7 @@ function NicotineCalculator() {
         ["Ilość końcowa ml np. 1000", volume, setVolume],
         ["Docelowe PG %", targetPg, setTargetPg],
         ["Docelowe VG %", targetVg, setTargetVg],
-      ].map(([name,value,setter]) => (
+      ].map(([name, value, setter]) => (
         <input
           key={name}
           placeholder={name}
@@ -167,19 +182,35 @@ function NicotineCalculator() {
             Wynik:
           </h3>
 
+
           <p>
             Baza nikotynowa:
-            <strong> {result.nicotineBase.toFixed(2)} ml</strong>
+            <strong>
+              {" "}
+              {result.nicotineBase.toFixed(2)} ml
+            </strong>
           </p>
+
 
           <p>
             PG:
-            <strong> {result.pg.toFixed(2)} ml</strong>
+            <strong>
+              {" "}
+              {result.pg.toFixed(2)} ml
+              {" "}
+              ({result.pgG.toFixed(2)} g)
+            </strong>
           </p>
+
 
           <p>
             VG:
-            <strong> {result.vg.toFixed(2)} ml</strong>
+            <strong>
+              {" "}
+              {result.vg.toFixed(2)} ml
+              {" "}
+              ({result.vgG.toFixed(2)} g)
+            </strong>
           </p>
 
         </>

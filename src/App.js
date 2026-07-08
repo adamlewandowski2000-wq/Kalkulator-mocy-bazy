@@ -90,16 +90,17 @@ function NicotineCalculator() {
 
     if (!b || !t || !v) return null;
 
+
     // ilość bazy nikotynowej
     const nicotineBase = (t * v) / b;
 
 
-    // wymagany całkowity PG/VG
+    // ile PG/VG ma być finalnie
     const pgTotal = v * (Number(targetPg) / 100);
     const vgTotal = v * (Number(targetVg) / 100);
 
 
-    // PG/VG wniesione przez bazę nikotynową
+    // ile PG/VG wnosi baza nikotynowa
     const pgFromBase =
       nicotineBase * (Number(basePg) / 100);
 
@@ -107,18 +108,33 @@ function NicotineCalculator() {
       nicotineBase * (Number(baseVg) / 100);
 
 
-    // brakujące ilości
+    // ile trzeba dodać
     const pg = pgTotal - pgFromBase;
     const vg = vgTotal - vgFromBase;
 
 
+    // gramatura bazy nikotynowej
+    const nicotineBaseG =
+      (
+        nicotineBase *
+        (Number(basePg) / 100) *
+        1.04
+      )
+      +
+      (
+        nicotineBase *
+        (Number(baseVg) / 100) *
+        1.26
+      );
+
+
     return {
       nicotineBase,
+      nicotineBaseG,
 
       pg,
       vg,
 
-      // ml -> g
       pgG: pg * 1.04,
       vgG: vg * 1.26,
     };
@@ -152,11 +168,15 @@ function NicotineCalculator() {
         ["Moc bazy np. 500 mg", baseMg, setBaseMg],
         ["PG bazy %", basePg, setBasePg],
         ["VG bazy %", baseVg, setBaseVg],
+
         ["Docelowa moc np. 36 mg", targetMg, setTargetMg],
         ["Ilość końcowa ml np. 1000", volume, setVolume],
+
         ["Docelowe PG %", targetPg, setTargetPg],
         ["Docelowe VG %", targetVg, setTargetVg],
+
       ].map(([name, value, setter]) => (
+
         <input
           key={name}
           placeholder={name}
@@ -171,11 +191,15 @@ function NicotineCalculator() {
             boxSizing:"border-box"
           }}
         />
+
       ))}
 
 
+
       {result && (
+
         <>
+
           <hr />
 
           <h3 style={{fontSize:16}}>
@@ -188,6 +212,8 @@ function NicotineCalculator() {
             <strong>
               {" "}
               {result.nicotineBase.toFixed(2)} ml
+              {" "}
+              ({result.nicotineBaseG.toFixed(2)} g)
             </strong>
           </p>
 
@@ -210,6 +236,33 @@ function NicotineCalculator() {
               {result.vg.toFixed(2)} ml
               {" "}
               ({result.vgG.toFixed(2)} g)
+            </strong>
+          </p>
+
+
+          <hr />
+
+          <p>
+            Razem:
+            <strong>
+              {" "}
+              {(
+                result.nicotineBase +
+                result.pg +
+                result.vg
+              ).toFixed(2)} ml
+            </strong>
+          </p>
+
+          <p>
+            Waga składników:
+            <strong>
+              {" "}
+              {(
+                result.nicotineBaseG +
+                result.pgG +
+                result.vgG
+              ).toFixed(2)} g
             </strong>
           </p>
 
